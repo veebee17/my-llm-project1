@@ -11,7 +11,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Playground</title>
+    <title>Venkat's LLM Playground</title>
     <style>
         * {
             margin: 0;
@@ -161,7 +161,7 @@ HTML_TEMPLATE = """
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 LLM Playground</h1>
+            <h1>🤖 Venkat's LLM Playground</h1>
             <p>Chat with multiple AI models in one place</p>
         </div>
         

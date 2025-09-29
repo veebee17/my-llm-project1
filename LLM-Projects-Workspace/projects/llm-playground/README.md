@@ -1,4 +1,4 @@
-# 🤖 LLM Playground
+# 🤖 Venkat's LLM Playground
 
 A clean, intuitive web interface for interacting with multiple Large Language Models (LLMs) including OpenAI GPT, Google Gemini, and Groq models.
 

@@ -108,7 +108,7 @@ def get_groq_response(user_input, messages, model):
 
 # Streamlit page configuration
 st.set_page_config(
-    page_title="LLM Playground",
+    page_title="Venkat's LLM Playground",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -272,7 +272,7 @@ if "max_tokens" not in st.session_state:
 
 # Sidebar for model selection and settings
 with st.sidebar:
-    st.title("🤖 LLM Playground")
+    st.title("🤖 Venkat's LLM Playground")
     
     # Provider selection
     provider = st.selectbox(
@@ -333,7 +333,7 @@ if st.session_state.messages:
 else:
     st.markdown("""
     <div style="text-align: center; padding: 40px; color: #8e8ea0;">
-        <h3>Welcome to LLM Playground! 👋</h3>
+        <h3>Welcome to Venkat's LLM Playground! 👋</h3>
         <p>Start a conversation by typing a message below.</p>
     </div>
     """, unsafe_allow_html=True)
