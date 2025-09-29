@@ -111,7 +111,7 @@ st.set_page_config(
     page_title="Venkat's LLM Playground",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for ChatGPT-like interface
@@ -270,9 +270,78 @@ if "temperature" not in st.session_state:
 if "max_tokens" not in st.session_state:
     st.session_state.max_tokens = 1000
 
-# Sidebar for model selection and settings
-with st.sidebar:
-    st.title("🤖 Venkat's LLM Playground")
+# Create main layout with columns
+col1, col2 = st.columns([3, 1])  # 3:1 ratio for main content and controls
+
+# Main chat area (left column)
+with col1:
+    # Main chat interface
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+
+    # Display chat messages
+    if st.session_state.messages:
+        for message in st.session_state.messages:
+            if message["role"] == "user":
+                st.markdown(f"""
+                <div class="user-message">
+                    <div class="user-avatar">U</div>
+                    {message["content"]}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="assistant-message">
+                    <div class="assistant-avatar">AI</div>
+                    <div style="margin-left: 50px;">{message["content"]}</div>
+                </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="text-align: center; padding: 40px; color: #8e8ea0;">
+            <h3>Welcome to Venkat's LLM Playground! 👋</h3>
+            <p>Start a conversation by typing a message below.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Chat input form - Basic Streamlit implementation
+    st.markdown("---")
+    st.markdown("### 💬 Chat with AI")
+
+    with st.form("chat_form", clear_on_submit=True):
+        user_input = st.text_input("Your message:", placeholder="Type your message here...", key="user_input")
+        submitted = st.form_submit_button("Send Message", type="primary")
+
+        if submitted and user_input:
+            # Add user message to session state
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            
+            # Get AI response based on selected provider
+            try:
+                if st.session_state.selected_provider == "OpenAI":
+                    response = get_openai_response(user_input, st.session_state.messages, st.session_state.selected_model)
+                elif st.session_state.selected_provider == "Anthropic":
+                    response = get_anthropic_response(user_input, st.session_state.messages, st.session_state.selected_model)
+                elif st.session_state.selected_provider == "Google":
+                    response = get_google_response(user_input, st.session_state.messages, st.session_state.selected_model)
+                elif st.session_state.selected_provider == "Groq":
+                    response = get_groq_response(user_input, st.session_state.messages, st.session_state.selected_model)
+                else:
+                    response = "Provider not configured."
+                
+                # Add assistant response to session state
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                
+            except Exception as e:
+                st.error(f"Error generating response: {str(e)}")
+            
+            # Rerun to update the display
+            st.rerun()
+
+# Right-side controls panel
+with col2:
+    st.markdown("### 🤖 Venkat's LLM Playground")
     
     # Provider selection
     provider = st.selectbox(
@@ -308,68 +377,4 @@ with st.sidebar:
     # Clear chat button
     if st.button("🗑️ Clear Chat"):
         st.session_state.messages = []
-        st.rerun()
-
-# Main chat interface
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-
-# Display chat messages
-if st.session_state.messages:
-    for message in st.session_state.messages:
-        if message["role"] == "user":
-            st.markdown(f"""
-            <div class="user-message">
-                <div class="user-avatar">U</div>
-                {message["content"]}
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="assistant-message">
-                <div class="assistant-avatar">AI</div>
-                <div style="margin-left: 50px;">{message["content"]}</div>
-            </div>
-            """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <div style="text-align: center; padding: 40px; color: #8e8ea0;">
-        <h3>Welcome to Venkat's LLM Playground! 👋</h3>
-        <p>Start a conversation by typing a message below.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Chat input form - Basic Streamlit implementation
-st.markdown("---")
-st.markdown("### 💬 Chat with AI")
-
-with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_input("Your message:", placeholder="Type your message here...", key="user_input")
-    submitted = st.form_submit_button("Send Message", type="primary")
-
-    if submitted and user_input:
-        # Add user message to session state
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
-        # Get AI response based on selected provider
-        try:
-            if st.session_state.selected_provider == "OpenAI":
-                response = get_openai_response(user_input, st.session_state.messages, st.session_state.selected_model)
-            elif st.session_state.selected_provider == "Anthropic":
-                response = get_anthropic_response(user_input, st.session_state.messages, st.session_state.selected_model)
-            elif st.session_state.selected_provider == "Google":
-                response = get_google_response(user_input, st.session_state.messages, st.session_state.selected_model)
-            elif st.session_state.selected_provider == "Groq":
-                response = get_groq_response(user_input, st.session_state.messages, st.session_state.selected_model)
-            else:
-                response = "Provider not configured."
-            
-            # Add assistant response to session state
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            
-        except Exception as e:
-            st.error(f"Error generating response: {str(e)}")
-        
-        # Rerun to update the display
         st.rerun()
