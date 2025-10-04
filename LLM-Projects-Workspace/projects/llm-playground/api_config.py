@@ -16,6 +16,12 @@ except ImportError:
     warnings.warn("python-dotenv not installed. Install with: pip install python-dotenv")
     load_dotenv = None
 
+try:
+    import streamlit as st
+    STREAMLIT_AVAILABLE = True
+except ImportError:
+    STREAMLIT_AVAILABLE = False
+
 
 class APIConfig:
     """
@@ -47,6 +53,7 @@ class APIConfig:
     def _get_env_var(self, key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
         """
         Get environment variable with optional default and validation.
+        Supports both environment variables and Streamlit secrets.
         
         Args:
             key: Environment variable name
@@ -54,14 +61,29 @@ class APIConfig:
             required: Whether the variable is required
             
         Returns:
-            Environment variable value or default
+            Variable value or default
             
         Raises:
             ValueError: If required variable is not found
         """
-        value = os.getenv(key, default)
+        value = None
+        
+        # First try Streamlit secrets if available
+        if STREAMLIT_AVAILABLE:
+            try:
+                # Try to get from Streamlit secrets
+                if hasattr(st, 'secrets') and 'api_keys' in st.secrets:
+                    value = st.secrets.api_keys.get(key)
+            except Exception:
+                pass  # Fall back to environment variables
+        
+        # Fall back to environment variables
+        if value is None:
+            value = os.getenv(key, default)
+        
         if required and not value:
             raise ValueError(f"Required environment variable '{key}' not found")
+        
         return value
     
     # API Key Getters
